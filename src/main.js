@@ -5,6 +5,17 @@
  * ISC Licensed
 */
 
-main = () => {}
+const copy = obj => Object.assign(obj)
 
-module.exports = main
+const length = obj => getKeys(obj).length
+
+const keys = obj => Object.keys(obj)
+
+const each = (obj, func) => getKeys(obj).forEach(n => func(n, obj[n]))
+
+module.exports = {
+  copy,
+  length,
+  keys,
+  each
+}
