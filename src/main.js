@@ -60,7 +60,7 @@ const length = obj => {
     return obj.length
   } else {
     if ( _type === 'object' && _type === 'array' ) {
-      return getKeys(obj).length
+      return keys(obj).length
     } else {
       return -1
     }
@@ -69,7 +69,7 @@ const length = obj => {
 
 const keys = obj => Object.keys(obj)
 
-const each = (obj, func) => getKeys(obj).forEach(n => func(n, obj[n]))
+const each = (obj, func) => keys(obj).forEach(n => func(n, obj[n]))
 
 module.exports = {
   type,

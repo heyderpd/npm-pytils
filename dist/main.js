@@ -65,7 +65,7 @@ var length = function length(obj) {
     return obj.length;
   } else {
     if (_type === 'object' && _type === 'array') {
-      return getKeys(obj).length;
+      return keys(obj).length;
     } else {
       return -1;
     }
@@ -77,7 +77,7 @@ var keys = function keys(obj) {
 };
 
 var each = function each(obj, func) {
-  return getKeys(obj).forEach(function (n) {
+  return keys(obj).forEach(function (n) {
     return func(n, obj[n]);
   });
 };
