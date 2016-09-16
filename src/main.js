@@ -59,7 +59,7 @@ const length = obj => {
   if ( _type === 'array' && obj.length !== undefined ) {
     return obj.length
   } else {
-    if ( _type === 'object' && _type === 'array' ) {
+    if ( _type === 'object' || _type === 'array' ) {
       return keys(obj).length
     } else {
       return -1
