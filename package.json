@@ -1,0 +1,26 @@
+{
+  "name": "pytils",
+  "version": "0.0.0",
+  "description": "pytils",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "transpile": "babel src/ -d dist/"
+  },
+  "keywords": [
+  ],
+  "author": "NPM pytils <heyderpd@gmail.com> (http://heyderpd.github.io)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heyderpd/npm-pytils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/heyderpd/npm-pytils/issues"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.14.0",
+    "babel-preset-es2015": "^6.14.0"
+  },
+  "dependencies": {}
+}
