@@ -11,5 +11,21 @@ npm install --save pytils
 
 ## Example:
 ```terminal
-...incomplete...
+const p = require('pytils')
+
+p.type     = function ( _object ) // return type of var in a string
+p.isType   = function ( _object , _type_need) // return true or false
+p.isString = function ( _object ) // return true or false
+p.isNumber = function ( _object ) // return true or false
+p.isArray  = function ( _object ) // return true or false
+p.isObject = function ( _object ) // return true or false
+p.isNull   = function ( _object ) // return true or false
+p.isUndefined = function ( _object ) // return true or false
+
+p.copy   = ( _object ) // copy object
+p.length = ( _object ) // get length of object or array, return -1 if can't
+p.keys   = ( _object ) // get keys of object or array
+
+p.fx = function(key, value)
+p.each   = ( _object , fx )
 ```
