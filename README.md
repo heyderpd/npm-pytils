@@ -1,5 +1,5 @@
 # pytils: functions utils like python
-many functions that use to simplify my javascript and that the syntax is similar to python
+many functions that use to simplify my javascript and that the syntax is inspired by python
 
 ## I will help if you have any difficulty =)
 Contact me by [github:heyderpd](https://github.com/heyderpd). I'll be glad to help you.
@@ -22,10 +22,11 @@ p.isObject = function ( _object ) // return true or false
 p.isNull   = function ( _object ) // return true or false
 p.isUndefined = function ( _object ) // return true or false
 
-p.copy   = ( _object ) // copy object
-p.length = ( _object ) // get length of object or array, return -1 if can't
-p.keys   = ( _object ) // get keys of object or array
+p.copy   = ( _object ) // copy any types
+p.length = ( _object ) // get length of any type, return -1 if can't
+p.keys   = ( _object ) // get keys of any type, return [] if can't
+p.hasProp = ( _object , prop ) // of any type, return true or false
 
-p.fx = function(key, value)
-p.each   = ( _object , fx )
+p.fx = function(key, value) { console.log(keys, ':', value) }
+p.each   = ( _object , fx ) // do each of any type
 ```

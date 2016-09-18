@@ -24,6 +24,20 @@ const type = (obj) => {
   }
 }
 
+const hasProp = (obj, item) => {
+  if (obj !== null && obj !== undefined && item !== undefined) {
+    if (obj[item] !== undefined) {
+      return true
+    } else {
+      return keys(obj).indexOf(item) >= 0
+        ? true
+        : false
+    }
+  } else {
+    return false
+  }
+}
+
 const isType = (obj, _type) => {
   return type(obj) === _type
 }
@@ -52,22 +66,62 @@ const isUndefined = (obj) => {
   return isType(obj, 'undefined')
 }
 
-const copy = obj => Object.assign(obj)
-
-const length = obj => {
-  const _type = type(obj)
-  if ( _type === 'array' && obj.length !== undefined ) {
-    return obj.length
-  } else {
-    if ( _type === 'object' || _type === 'array' ) {
-      return keys(obj).length
-    } else {
-      return -1
-    }
+const copy = obj => {
+  switch(type(obj)) {
+    case 'array':
+    case 'object':
+    case 'function':
+      // Object.assign don't suport deep cloning!
+      // is not the best way, I will improve it later
+      return JSON.parse( JSON.stringify(obj) )
+    
+    default:
+      return Object.assign(obj)
   }
 }
 
-const keys = obj => Object.keys(obj)
+const length = obj => {
+  let _length
+  switch(type(obj)) {
+    case 'object':
+      _length = keys(obj).length
+      break
+
+    case 'null':
+    case 'undefined':
+      _length = -1
+      break
+
+    case 'number':
+      obj = String(obj)
+    case 'array':
+    case 'function':
+    default:
+      _length = obj.length
+      break
+  }
+  return _length
+}
+
+const keys = obj => {
+  const _type = type(obj)
+  switch(_type) {
+    case 'array':
+    case 'object':
+    case 'function':
+      return Object.keys(obj)
+
+    case 'null':
+    case 'undefined':
+      return []
+
+    case 'number':
+      obj = String(obj)
+    case 'string':
+    default:
+      return obj.split('')
+  }
+}
 
 const each = (obj, func) => keys(obj).forEach(n => func(n, obj[n]))
 
@@ -83,5 +137,6 @@ module.exports = {
   copy,
   length,
   keys,
+  hasProp,
   each
 }

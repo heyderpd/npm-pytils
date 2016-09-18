@@ -27,6 +27,18 @@ var type = function type(obj) {
   }
 };
 
+var hasProp = function hasProp(obj, item) {
+  if (obj !== null && obj !== undefined && item !== undefined) {
+    if (obj[item] !== undefined) {
+      return true;
+    } else {
+      return keys(obj).indexOf(item) >= 0 ? true : false;
+    }
+  } else {
+    return false;
+  }
+};
+
 var isType = function isType(obj, _type) {
   return type(obj) === _type;
 };
@@ -56,24 +68,60 @@ var isUndefined = function isUndefined(obj) {
 };
 
 var copy = function copy(obj) {
-  return Object.assign(obj);
-};
+  switch (type(obj)) {
+    case 'array':
+    case 'object':
+    case 'function':
+      // Object.assign don't suport deep cloning!
+      // is not the best way, I will improve it later
+      return JSON.parse(JSON.stringify(obj));
 
-var length = function length(obj) {
-  var _type = type(obj);
-  if (_type === 'array' && obj.length !== undefined) {
-    return obj.length;
-  } else {
-    if (_type === 'object' || _type === 'array') {
-      return keys(obj).length;
-    } else {
-      return -1;
-    }
+    default:
+      return Object.assign(obj);
   }
 };
 
+var length = function length(obj) {
+  var _length = void 0;
+  switch (type(obj)) {
+    case 'object':
+      _length = keys(obj).length;
+      break;
+
+    case 'null':
+    case 'undefined':
+      _length = -1;
+      break;
+
+    case 'number':
+      obj = String(obj);
+    case 'array':
+    case 'function':
+    default:
+      _length = obj.length;
+      break;
+  }
+  return _length;
+};
+
 var keys = function keys(obj) {
-  return Object.keys(obj);
+  var _type = type(obj);
+  switch (_type) {
+    case 'array':
+    case 'object':
+    case 'function':
+      return Object.keys(obj);
+
+    case 'null':
+    case 'undefined':
+      return [];
+
+    case 'number':
+      obj = String(obj);
+    case 'string':
+    default:
+      return obj.split('');
+  }
 };
 
 var each = function each(obj, func) {
@@ -94,5 +142,6 @@ module.exports = {
   copy: copy,
   length: length,
   keys: keys,
+  hasProp: hasProp,
   each: each
 };
