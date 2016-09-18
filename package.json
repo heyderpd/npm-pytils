@@ -1,6 +1,6 @@
 {
   "name": "pytils",
-  "version": "0.13.4",
+  "version": "0.14.1",
   "description": "pytils",
   "main": "index.js",
   "scripts": {

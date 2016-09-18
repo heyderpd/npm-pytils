@@ -124,9 +124,21 @@ var keys = function keys(obj) {
   }
 };
 
-var each = function each(obj, func) {
+var eachManipulate = function eachManipulate(obj, func, manipulate) {
   return keys(obj).forEach(function (n) {
-    return func(n, obj[n]);
+    return manipulate(func, n, obj);
+  });
+};
+
+var each = function each(obj, func) {
+  return eachManipulate(obj, func, function (fx, k, l) {
+    return fx(k, l[k]);
+  });
+};
+
+var eachVal = function eachVal(obj, func) {
+  return eachManipulate(obj, func, function (fx, k, l) {
+    return fx(l[k]);
   });
 };
 
@@ -143,5 +155,6 @@ module.exports = {
   length: length,
   keys: keys,
   hasProp: hasProp,
-  each: each
+  each: each,
+  eachVal: eachVal
 };

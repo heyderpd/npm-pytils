@@ -123,7 +123,17 @@ const keys = obj => {
   }
 }
 
-const each = (obj, func) => keys(obj).forEach(n => func(n, obj[n]))
+const eachManipulate = (obj, func, manipulate) => keys(obj).forEach( (n) => manipulate(func, n, obj) )
+
+const each = (obj, func) => eachManipulate(
+  obj,
+  func,
+  (fx, k, l) => fx( k, l[k] ) )
+
+const eachVal = (obj, func) => eachManipulate(
+  obj,
+  func,
+  (fx, k, l) => fx( l[k] ) )
 
 module.exports = {
   type,
@@ -138,5 +148,6 @@ module.exports = {
   length,
   keys,
   hasProp,
-  each
+  each,
+  eachVal
 }

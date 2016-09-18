@@ -27,6 +27,11 @@ p.length = ( _object ) // get length of any type, return -1 if can't
 p.keys   = ( _object ) // get keys of any type, return [] if can't
 p.hasProp = ( _object , prop ) // of any type, return true or false
 
-p.fx = function(key, value) { console.log(keys, ':', value) }
-p.each   = ( _object , fx ) // do each of any type
+p.fx = function( key, value ) { console.log('item: ', keys, ' = ', value) }
+p.each   = ( _object , fx ) // do each of any type, pass to function var's (key, value)
+
+p.fx = function( value ) { console.log('item: ', value) }
+p.eachVal = ( _object , fx ) // do each of any type, pass to function (value)
+
+eachVal
 ```
