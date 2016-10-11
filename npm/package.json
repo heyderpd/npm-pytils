@@ -1,0 +1,23 @@
+{
+  "license": "MIT",
+  "name": "pytils",
+  "version": "0.16.2",
+  "description": "pytils",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "python",
+    "utils",
+    "lib"
+  ],
+  "author": "NPM pytils <heyderpd@gmail.com> (http://heyderpd.github.io)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heyderpd/npm-pytils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/heyderpd/npm-pytils/issues"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}

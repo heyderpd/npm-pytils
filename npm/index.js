@@ -1,6 +1,6 @@
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /*!
  * pytils
@@ -124,6 +124,26 @@ var keys = function keys(obj) {
   }
 };
 
+var toObject = function toObject(array) {
+  if (length(array) <= 0) return {};
+
+  var object = {};
+  eachVal(array, function (value) {
+    object[value] = null;
+  });
+  return object;
+};
+
+var arrayDiff = function arrayDiff(list, compare) {
+  if (length(compare) <= 0) return list;
+
+  var objValues = toObject(list);
+  eachVal(compare, function (value) {
+    delete objValues[value];
+  });
+  return keys(objValues);
+};
+
 var eachManipulate = function eachManipulate(obj, func, manipulate) {
   return keys(obj).forEach(function (n) {
     return manipulate(func, n, obj);
@@ -156,5 +176,7 @@ module.exports = {
   keys: keys,
   hasProp: hasProp,
   each: each,
-  eachVal: eachVal
+  eachVal: eachVal,
+  toObject: toObject,
+  arrayDiff: arrayDiff
 };

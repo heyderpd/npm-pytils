@@ -123,6 +123,28 @@ const keys = obj => {
   }
 }
 
+const toObject = array => {
+  if (length(array) <= 0)
+    return {}
+
+  const object = {}
+  eachVal(array, value => {
+    object[value] = null
+  })
+  return object
+}
+
+const arrayDiff = (list, compare) => {
+  if (length(compare) <= 0)
+    return list
+
+  const objValues = toObject(list)
+  eachVal(compare, value => {
+    delete objValues[value]
+  })
+  return keys(objValues)
+}
+
 const eachManipulate = (obj, func, manipulate) => keys(obj).forEach( (n) => manipulate(func, n, obj) )
 
 const each = (obj, func) => eachManipulate(
@@ -149,5 +171,7 @@ module.exports = {
   keys,
   hasProp,
   each,
-  eachVal
+  eachVal,
+  toObject,
+  arrayDiff
 }
