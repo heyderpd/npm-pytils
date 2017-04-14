@@ -1,11 +1,12 @@
 {
   "license": "MIT",
   "name": "pytils",
-  "version": "0.16.2",
+  "version": "1.19.5",
   "description": "pytils",
   "main": "index.js",
   "scripts": {},
   "keywords": [
+    "ramda",
     "python",
     "utils",
     "lib"

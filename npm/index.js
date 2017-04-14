@@ -8,35 +8,74 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * ISC Licensed
 */
 
+var compose = function compose() {
+  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+    args[_key] = arguments[_key];
+  }
+
+  return function (input) {
+    return args.reduce(function (obj, func) {
+      return func(obj);
+    }, input);
+  };
+};
+
+var curry = function curry(func) {
+  return function () {
+    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+
+    if (args.length >= func.length) {
+      return func.apply(undefined, args);
+    }
+    var store = args;
+    return function () {
+      for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        args[_key3] = arguments[_key3];
+      }
+
+      return curry(func).apply(undefined, [].concat(store, args));
+    };
+  };
+};
+
+var pureProp = function pureProp(props, obj) {
+  return keys(props).reduce(function (obj, prop) {
+    return hasProp(obj, prop) ? obj[prop] : undefined;
+  });
+};
+
+var prop = curry(pureProp);
+
 var type = function type(obj) {
+  if (obj === null) {
+    return 'null';
+  }
+  if (obj === undefined) {
+    return 'null';
+  }
   var _typeOf = typeof obj === 'undefined' ? 'undefined' : _typeof(obj);
-  if (_typeOf === 'function') {
-    return 'function';
-  } else if (_typeOf === 'object') {
-    if (obj === null) {
-      return 'null';
-    }
-    var _type = obj && obj.constructor ? obj.constructor : undefined;
-    if (_type === Object) {
+  switch (_typeOf) {
+    case 'function':
+      return 'function';
+
+    case 'object':
+      var _type = obj && obj.constructor ? obj.constructor : null;
+      if (_type === Object) {
+        return 'object';
+      }
+      if (_type === Array) {
+        return 'array';
+      }
+
+    default:
       return _typeOf;
-    } else {
-      return _type === Array ? 'array' : _type;
-    }
-  } else {
-    return _typeOf;
   }
 };
 
 var hasProp = function hasProp(obj, item) {
-  if (obj !== null && obj !== undefined && item !== undefined) {
-    if (obj[item] !== undefined) {
-      return true;
-    } else {
-      return keys(obj).indexOf(item) >= 0 ? true : false;
-    }
-  } else {
-    return false;
-  }
+  return isAOF(obj) ? keys(obj).indexOf(item) >= 0 : false;
 };
 
 var isType = function isType(obj, _type) {
@@ -59,6 +98,14 @@ var isObject = function isObject(obj) {
   return isType(obj, 'object');
 };
 
+var isFunction = function isFunction(obj) {
+  return isType(obj, 'function');
+};
+
+var isAOF = function isAOF(obj) {
+  return ['array', 'object', 'function'].indexOf(type(obj)) >= 0;
+};
+
 var isNull = function isNull(obj) {
   return isType(obj, 'null');
 };
@@ -68,45 +115,60 @@ var isUndefined = function isUndefined(obj) {
 };
 
 var copy = function copy(obj) {
-  switch (type(obj)) {
-    case 'array':
-    case 'object':
-    case 'function':
-      // Object.assign don't suport deep cloning!
-      // is not the best way, I will improve it later
-      return JSON.parse(JSON.stringify(obj));
-
-    default:
-      return Object.assign(obj);
+  if (isAOF(obj)) {
+    return copyObject(obj);
   }
+  return Object.assign(obj);
+};
+
+var copyObject = function copyObject(obj) {
+  var R = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
+  if (R++ > 42) throw "Limit recursive exceeded in pytils.copyObject";
+
+  if (isAOF(obj)) {
+    var _ret = function () {
+      var nObj = new obj.constructor();
+      map(obj, function (v, k) {
+        return nObj[k] = copyObject(v, R);
+      });
+      return {
+        v: nObj
+      };
+    }();
+
+    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+  }
+
+  return obj;
 };
 
 var length = function length(obj) {
-  var _length = void 0;
   switch (type(obj)) {
+    case 'number':
     case 'object':
-      _length = keys(obj).length;
-      break;
+      return keys(obj).length;
+
+    case 'string':
+    case 'array':
+    case 'function':
+      return obj.length;
 
     case 'null':
     case 'undefined':
-      _length = -1;
-      break;
-
-    case 'number':
-      obj = String(obj);
-    case 'array':
-    case 'function':
     default:
-      _length = obj.length;
-      break;
+      return -1;
   }
-  return _length;
 };
 
 var keys = function keys(obj) {
-  var _type = type(obj);
-  switch (_type) {
+  switch (type(obj)) {
+    case 'number':
+      obj = String(obj);
+
+    case 'string':
+      obj = obj.split('');
+
     case 'array':
     case 'object':
     case 'function':
@@ -114,69 +176,86 @@ var keys = function keys(obj) {
 
     case 'null':
     case 'undefined':
-      return [];
-
-    case 'number':
-      obj = String(obj);
-    case 'string':
     default:
-      return obj.split('');
+      return [];
   }
 };
 
-var toObject = function toObject(array) {
-  if (length(array) <= 0) return {};
+var values = function values(obj) {
+  switch (type(obj)) {
+    case 'number':
+      return String(obj).split('').map(function (n) {
+        return parseInt(n);
+      });
 
-  var object = {};
-  eachVal(array, function (value) {
-    object[value] = null;
-  });
-  return object;
+    case 'string':
+      return obj.split('');
+
+    case 'object':
+    case 'function':
+      return map(obj, function (k) {
+        return obj[k];
+      });
+
+    case 'array':
+    case 'null':
+    case 'undefined':
+    default:
+      return [];
+  }
+};
+
+var toObject = function toObject(input) {
+  if (isArray(input) && length(v) <= 0) {
+    return {};
+  }
+
+  return copy(input).reduce(function (obj, v, k) {
+    obj[v] = k;
+    return obj;
+  }, {});
 };
 
 var arrayDiff = function arrayDiff(list, compare) {
-  if (length(compare) <= 0) return list;
-
-  var objValues = toObject(list);
-  eachVal(compare, function (value) {
-    delete objValues[value];
+  if (length(compare) <= 0) {
+    return copy(list);
+  }
+  if (length(list) <= 0) {
+    return copy(compare);
+  }
+  var obj = toObject(list);
+  compare.map(function (k) {
+    return delete obj[k];
   });
-  return keys(objValues);
+  return keys(obj);
 };
 
-var eachManipulate = function eachManipulate(obj, func, manipulate) {
-  return keys(obj).forEach(function (n) {
-    return manipulate(func, n, obj);
-  });
-};
-
-var each = function each(obj, func) {
-  return eachManipulate(obj, func, function (fx, k, l) {
-    return fx(k, l[k]);
-  });
-};
-
-var eachVal = function eachVal(obj, func) {
-  return eachManipulate(obj, func, function (fx, k, l) {
-    return fx(l[k]);
+var map = function map(obj, func) {
+  return keys(obj).map(function (k) {
+    return func(obj[k], k, obj);
   });
 };
 
 module.exports = {
+  compose: compose,
+  curry: curry,
+  prop: prop,
   type: type,
   isType: isType,
   isString: isString,
   isNumber: isNumber,
   isArray: isArray,
   isObject: isObject,
+  isFunction: isFunction,
+  isAOF: isAOF,
   isNull: isNull,
   isUndefined: isUndefined,
   copy: copy,
   length: length,
   keys: keys,
+  values: values,
   hasProp: hasProp,
-  each: each,
-  eachVal: eachVal,
+  map: map,
   toObject: toObject,
   arrayDiff: arrayDiff
 };

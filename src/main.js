@@ -5,107 +5,125 @@
  * ISC Licensed
 */
 
-const type = (obj) => {
+const compose = (...args) => {
+  return input => args
+    .reduce(
+      (obj, func) => func(obj), input)
+}
+
+const curry = func => {
+  return (...args) => {
+    if (args.length >= func.length) {
+      return func(...args)
+    }
+    const store = args
+    return (...args) => curry(func)(...[...store, ...args])
+  }
+}
+
+const pureProp = (props, obj) => keys(props)
+  .reduce((obj, prop) => hasProp(obj, prop)
+    ? obj[prop]
+    : undefined)
+
+const prop = curry(pureProp)
+
+const type = obj => {
+  if (obj === null) {
+    return 'null'
+  }
+  if (obj === undefined) {
+    return 'null'
+  }
   const _typeOf = typeof(obj)
-  if (_typeOf === 'function') {
-    return 'function'
-  } else if (_typeOf === 'object') {
-    if (obj === null) {
-      return 'null'
-    }
-    const _type = (obj && obj.constructor) ? obj.constructor : undefined
-    if (_type === Object) {
+  switch (_typeOf) {
+    case 'function':
+      return 'function'
+
+    case 'object':
+      const _type = (obj && obj.constructor) ? obj.constructor : null
+      if (_type === Object) {
+        return 'object'
+      }
+      if (_type === Array) {
+        return 'array'
+      }
+
+    default:
       return _typeOf
-    } else {
-      return (_type === Array) ? 'array' : _type
-    }
-  } else {
-    return _typeOf
   }
 }
 
-const hasProp = (obj, item) => {
-  if (obj !== null && obj !== undefined && item !== undefined) {
-    if (obj[item] !== undefined) {
-      return true
-    } else {
-      return keys(obj).indexOf(item) >= 0
-        ? true
-        : false
-    }
-  } else {
-    return false
-  }
-}
+const hasProp = (obj, item) => isAOF(obj)
+  ? keys(obj).indexOf(item) >= 0
+  : false
 
-const isType = (obj, _type) => {
-  return type(obj) === _type
-}
+const isType = (obj, _type) => type(obj) === _type
 
-const isString = (obj) => {
-  return isType(obj, 'string')
-}
+const isString = obj => isType(obj, 'string')
 
-const isNumber = (obj) => {
-  return isType(obj, 'number')
-}
+const isNumber = obj => isType(obj, 'number')
 
-const isArray = (obj) => {
-  return isType(obj, 'array')
-}
+const isArray = obj => isType(obj, 'array')
 
-const isObject = (obj) => {
-  return isType(obj, 'object')
-}
+const isObject = obj => isType(obj, 'object')
 
-const isNull = (obj) => {
-  return isType(obj, 'null')
-}
+const isFunction = obj => isType(obj, 'function')
 
-const isUndefined = (obj) => {
-  return isType(obj, 'undefined')
-}
+const isAOF = obj => ['array', 'object', 'function'].indexOf(type(obj)) >= 0
+
+const isNull = obj => isType(obj, 'null')
+
+const isUndefined = obj => isType(obj, 'undefined')
 
 const copy = obj => {
-  switch(type(obj)) {
-    case 'array':
-    case 'object':
-    case 'function':
-      // Object.assign don't suport deep cloning!
-      // is not the best way, I will improve it later
-      return JSON.parse( JSON.stringify(obj) )
-    
-    default:
-      return Object.assign(obj)
+  if(isAOF(obj)) {
+    return copyObject(obj)
   }
+  return Object.assign(obj)
+}
+
+const copyObject = (obj, R = 0) => {
+  if (R++ > 42)
+    throw "Limit recursive exceeded in pytils.copyObject"
+
+  if(isAOF(obj)) {
+    const nObj = new obj.constructor()
+    map(
+      obj,
+      (v, k) => nObj[k] = copyObject(v, R))
+    return nObj
+  }
+
+  return obj
 }
 
 const length = obj => {
-  let _length
   switch(type(obj)) {
+    case 'number':
     case 'object':
-      _length = keys(obj).length
-      break
+      return keys(obj).length
+
+    case 'string':
+    case 'array':
+    case 'function':
+      return obj.length
 
     case 'null':
     case 'undefined':
-      _length = -1
-      break
-
-    case 'number':
-      obj = String(obj)
-    case 'array':
-    case 'function':
     default:
-      _length = obj.length
-      break
+      return -1
   }
-  return _length
 }
 
 const keys = obj => {
-  const _type = type(obj)
-  switch(_type) {
+  switch(type(obj)) {
+    case 'number':
+      obj = String(obj)
+
+    case 'string':
+      obj = obj.split('')
+
     case 'array':
     case 'object':
     case 'function':
@@ -113,65 +131,80 @@ const keys = obj => {
 
     case 'null':
     case 'undefined':
-      return []
-
-    case 'number':
-      obj = String(obj)
-    case 'string':
     default:
-      return obj.split('')
+      return []
   }
 }
 
-const toObject = array => {
-  if (length(array) <= 0)
-    return {}
+const values = obj => {
+  switch(type(obj)) {
+    case 'number':
+      return String(obj)
+        .split('')
+        .map(n => parseInt(n))
 
-  const object = {}
-  eachVal(array, value => {
-    object[value] = null
-  })
-  return object
+    case 'string':
+      return obj.split('')
+
+    case 'object':
+    case 'function':
+      return map(obj, k => obj[k])
+
+    case 'array':
+    case 'null':
+    case 'undefined':
+    default:
+      return []
+  }
+}
+
+const toObject = input => {
+  if (isArray(input) && length(v) <= 0) {
+    return {}
+  }
+
+  return copy(input)
+    .reduce((obj, v, k) => {
+      obj[v] = k
+      return obj
+    }, {})
 }
 
 const arrayDiff = (list, compare) => {
-  if (length(compare) <= 0)
-    return list
-
-  const objValues = toObject(list)
-  eachVal(compare, value => {
-    delete objValues[value]
-  })
-  return keys(objValues)
+  if (length(compare) <= 0) {
+    return copy(list)
+  }
+  if (length(list) <= 0) {
+    return copy(compare)
+  }
+  const obj = toObject(list)
+  compare
+    .map(k => delete obj[k])
+  return keys(obj)
 }
 
-const eachManipulate = (obj, func, manipulate) => keys(obj).forEach( (n) => manipulate(func, n, obj) )
-
-const each = (obj, func) => eachManipulate(
-  obj,
-  func,
-  (fx, k, l) => fx( k, l[k] ) )
-
-const eachVal = (obj, func) => eachManipulate(
-  obj,
-  func,
-  (fx, k, l) => fx( l[k] ) )
+const map = (obj, func) => keys(obj).map(k => func(obj[k], k, obj))
 
 module.exports = {
+  compose,
+  curry,
+  prop,
   type,
   isType,
   isString,
   isNumber,
   isArray,
   isObject,
+  isFunction,
+  isAOF,
   isNull,
   isUndefined,
   copy,
   length,
   keys,
+  values,
   hasProp,
-  each,
-  eachVal,
+  map,
   toObject,
   arrayDiff
 }
