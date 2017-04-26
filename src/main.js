@@ -161,25 +161,6 @@ export const length = obj => {
   }
 }
 
-export const toObject = input => {
-  if (isArray(input) && length(v) <= 0) {
-    return {}
-  }
-  return input
-    .reduce((obj, v, k) => {
-      obj[v] = copy(k)
-      return obj
-    }, {})
-}
-
-export const invertObj = input => {
-  return reduce(
-    (obj, val, key) => {
-      obj[val] = key
-      return obj
-    }, {})(input)
-}
-
 /* OBJECT */
 /* RAMDA LIKE */
 
@@ -210,7 +191,7 @@ export const path = curry(
         }, obj)
   })
 
-export const map = curryOf3(
+export const map = curry(
   func => list => {
     return isArray(list)
       ? list.map(func)
@@ -253,19 +234,10 @@ export const uniq = list => {
 
 export const eq1True = list => isArray(list) && list.length === 1 && list[0] === true
 
-export const translate = curryOf3(
-  dictionary => original => {
-    return reduce(
-      (obj, ori, des) => {
-        obj[des] = path([ori], original)
-        return obj
-      }, {})(dictionary)
-  })
-
 /* RAMDA LIKE */
-/* OTHERS */
+/* PYTILS */
 
-const arrayDiff = (list, compare) => {
+export const arrayDiff = (list, compare) => {
   if (length(compare) <= 0) {
     return copy(list)
   }
@@ -278,4 +250,47 @@ const arrayDiff = (list, compare) => {
   return keys(obj)
 }
 
-/* OTHERS */
+export const toObject = input => {
+  if (isArray(input) && length(v) <= 0) {
+    return {}
+  }
+  return input
+    .reduce((obj, v, k) => {
+      obj[v] = copy(k)
+      return obj
+    }, {})
+}
+
+export const invertObj = input => {
+  return reduce(
+    (obj, val, key) => {
+      obj[val] = key
+      return obj
+    }, {})(input)
+}
+
+export const ojbFromVals = arrKeys => arrKeys
+  .reduce(
+    (obj, val) => {
+      obj[val] = val
+      return obj
+    }, {})
+
+export const translate = curry(
+  dictionary => original => {
+    return reduce(
+      (obj, ori, des) => {
+        obj[des] = path([ori], original)
+        return obj
+      }, {})(dictionary)
+  })
+
+export const uniqObject = (A, B) => compose(
+    eq1True,
+    uniq,
+    map(
+      key => path([key], A) === path([key], B)),
+    keys
+  )(A)
+
+/* PYTILS */
