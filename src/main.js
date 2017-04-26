@@ -21,7 +21,7 @@ export const type = obj => {
   }
 
   if (_typeOf === 'object') {
-    const _type = prop(['obj', 'constructor'], obj)
+    const _type = path(['obj', 'constructor'], obj)
     if (_type === Object) {
       return 'object'
     }
@@ -55,7 +55,7 @@ export const isUndefined = obj => isType(obj, 'undefined')
 /* OBJECT */
 
 const _keys = (() => {
-  const has = prop(['prototype', 'hasOwnProperty'], Object)
+  const has = path(['prototype', 'hasOwnProperty'], Object)
   if (!isFunction(has)){
     throw "Cant't get Object.prototype.hasOwnProperty"
   }
@@ -172,30 +172,98 @@ export const toObject = input => {
     }, {})
 }
 
-/* OBJECT */
-
-const compose = (...args) => {
-  return input => args
-    .reduce(
-      (obj, func) => func(obj), input)
+export const invertObj = input => {
+  return reduce(
+    (obj, val, key) => {
+      obj[val] = key
+      return obj
+    }, {})(input)
 }
 
-const curry = func => {
+/* OBJECT */
+/* RAMDA LIKE */
+
+export const compose = (...funcs) => input => {
+  return funcs
+    .reverse()
+    .reduce(
+      (obj, fx) => fx(obj), input)
+}
+
+export const curry = func => {
   return (...args) => {
     if (args.length >= func.length) {
       return func(...args)
     }
-    const store = args
-    return (...args) => curry(func)(...[...store, ...args])
+    return (...nextArgs) => curry(func)(...args.concat(nextArgs))
   }
 }
 
-const pureProp = (props, obj) => keys(props)
-  .reduce((obj, prop) => hasProp(obj, prop)
-    ? obj[prop]
-    : undefined)
+export const path = curry(
+  path => obj => {
+    return path
+      .reduce(
+        (acc, item) => {
+          return acc !== null && acc !== undefined && typeof(acc) === 'object'
+            ? acc[item]
+            : undefined
+        }, obj)
+  })
 
-const prop = curry(pureProp)
+export const map = curryOf3(
+  func => list => {
+    return isArray(list)
+      ? list.map(func)
+      : (isObject(list)
+        ? keys(list).map(
+            key => func(list[key], key))
+        : undefined
+      )
+  })
+
+export const reduce = (func, obj) => list => {
+    return isArray(list)
+      ? list.reduce(func, obj)
+      : (isObject(list)
+        ? keys(list)
+          .reduce(
+            (obj, key) => func(obj, list[key], key),
+            obj)
+        : undefined
+      )
+  }
+
+export const uniqWith = (comparator, list) => {
+  const outputList = []
+  map(
+    itemA => {
+      const equals = map(
+          itemB => comparator(itemA, itemB)
+        )(outputList)
+        .filter(item => item)
+
+      equals && equals.length === 0 && outputList.push(itemA)
+    })(list)
+  return outputList
+}
+
+export const uniq = list => {
+  return values(createObj(list))
+}
+
+export const eq1True = list => isArray(list) && list.length === 1 && list[0] === true
+
+export const translate = curryOf3(
+  dictionary => original => {
+    return reduce(
+      (obj, ori, des) => {
+        obj[des] = path([ori], original)
+        return obj
+      }, {})(dictionary)
+  })
+
+/* RAMDA LIKE */
+/* OTHERS */
 
 const arrayDiff = (list, compare) => {
   if (length(compare) <= 0) {
@@ -210,28 +278,4 @@ const arrayDiff = (list, compare) => {
   return keys(obj)
 }
 
-const map = (obj, func) => keys(obj).map(k => func(obj[k], k, obj))
-
-module.exports = {
-  compose,
-  curry,
-  prop,
-  type,
-  isType,
-  isString,
-  isNumber,
-  isArray,
-  isObject,
-  isFunction,
-  isAOF,
-  isNull,
-  isUndefined,
-  copy,
-  length,
-  keys,
-  values,
-  hasProp,
-  map,
-  toObject,
-  arrayDiff
-}
+/* OTHERS */
