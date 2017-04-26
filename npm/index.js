@@ -53,25 +53,25 @@ var type = function type(obj) {
     return 'null';
   }
   if (obj === undefined) {
-    return 'null';
+    return 'undefined';
   }
+
   var _typeOf = typeof obj === 'undefined' ? 'undefined' : _typeof(obj);
-  switch (_typeOf) {
-    case 'function':
-      return 'function';
-
-    case 'object':
-      var _type = obj && obj.constructor ? obj.constructor : null;
-      if (_type === Object) {
-        return 'object';
-      }
-      if (_type === Array) {
-        return 'array';
-      }
-
-    default:
-      return _typeOf;
+  if (_typeOf === 'function') {
+    return 'function';
   }
+
+  if (_typeOf === 'object') {
+    var _type = prop(['obj', 'constructor'], obj);
+    if (_type === Object) {
+      return 'object';
+    }
+    if (_type === Array) {
+      return 'array';
+    }
+  }
+
+  return _typeOf;
 };
 
 var hasProp = function hasProp(obj, item) {
@@ -124,20 +124,16 @@ var copy = function copy(obj) {
 var copyObject = function copyObject(obj) {
   var R = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
-  if (R++ > 42) throw "Limit recursive exceeded in pytils.copyObject";
+  if (R++ > 42) {
+    throw "Limit recursive exceeded in pytils.copyObject";
+  }
 
   if (isAOF(obj)) {
-    var _ret = function () {
-      var nObj = new obj.constructor();
-      map(obj, function (v, k) {
-        return nObj[k] = copyObject(v, R);
-      });
-      return {
-        v: nObj
-      };
-    }();
-
-    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+    var nObj = new obj.constructor();
+    map(obj, function (v, k) {
+      return nObj[k] = copyObject(v, R);
+    });
+    return nObj;
   }
 
   return obj;
@@ -161,6 +157,26 @@ var length = function length(obj) {
   }
 };
 
+var _keys = function () {
+  var has = prop(['prototype', 'hasOwnProperty'], Object);
+  if (!isFunction(has)) {
+    throw "Cant't get Object.prototype.hasOwnProperty";
+  }
+
+  return function (obj) {
+    if (isAOF(obj)) {
+      var props = [];
+      for (var p in obj) {
+        props.push(p);
+      }
+      return props.filter(function (p) {
+        return has.call(obj, p);
+      });
+    }
+    return [];
+  };
+}();
+
 var keys = function keys(obj) {
   switch (type(obj)) {
     case 'number':
@@ -172,7 +188,7 @@ var keys = function keys(obj) {
     case 'array':
     case 'object':
     case 'function':
-      return Object.keys(obj);
+      return _keys(obj);
 
     case 'null':
     case 'undefined':

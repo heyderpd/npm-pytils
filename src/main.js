@@ -33,25 +33,25 @@ const type = obj => {
     return 'null'
   }
   if (obj === undefined) {
-    return 'null'
+    return 'undefined'
   }
+
   const _typeOf = typeof(obj)
-  switch (_typeOf) {
-    case 'function':
-      return 'function'
-
-    case 'object':
-      const _type = (obj && obj.constructor) ? obj.constructor : null
-      if (_type === Object) {
-        return 'object'
-      }
-      if (_type === Array) {
-        return 'array'
-      }
-
-    default:
-      return _typeOf
+  if (_typeOf === 'function') {
+    return 'function'
   }
+
+  if (_typeOf === 'object') {
+    const _type = prop(['obj', 'constructor'], obj)
+    if (_type === Object) {
+      return 'object'
+    }
+    if (_type === Array) {
+      return 'array'
+    }
+  }
+
+  return _typeOf
 }
 
 const hasProp = (obj, item) => isAOF(obj)
@@ -84,8 +84,9 @@ const copy = obj => {
 }
 
 const copyObject = (obj, R = 0) => {
-  if (R++ > 42)
+  if (R++ > 42) {
     throw "Limit recursive exceeded in pytils.copyObject"
+  }
 
   if(isAOF(obj)) {
     const nObj = new obj.constructor()
@@ -116,6 +117,26 @@ const length = obj => {
   }
 }
 
+const _keys = (() => {
+  const has = prop(['prototype', 'hasOwnProperty'], Object)
+  if (!isFunction(has)){
+    throw "Cant't get Object.prototype.hasOwnProperty"
+  }
+
+  return obj => {
+    if (isAOF(obj)) {
+      const props = []
+      for (let p in obj) {
+        props.push(p)
+      }
+      return props
+        .filter(
+          p => has.call(obj, p))
+    }
+    return []
+  }
+})()
+
 const keys = obj => {
   switch(type(obj)) {
     case 'number':
@@ -127,7 +148,7 @@ const keys = obj => {
     case 'array':
     case 'object':
     case 'function':
-      return Object.keys(obj)
+      return _keys(obj)
 
     case 'null':
     case 'undefined':
