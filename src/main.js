@@ -125,7 +125,7 @@ const _copy = (obj, R = 0) => {
     const nObj = new obj.constructor()
     map(
       obj,
-      (v, k) => nObj[k] = copyObject(v, R))
+      (v, k) => nObj[k] = _copy(v, R))
     return nObj
   }
 
@@ -134,7 +134,7 @@ const _copy = (obj, R = 0) => {
 
 export const copy = obj => {
   if(isAOF(obj)) {
-    return copyObject(obj)
+    return _copy(obj)
   }
   return Object.assign(obj)
 }

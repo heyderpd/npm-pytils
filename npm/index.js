@@ -155,7 +155,7 @@ var _copy = function _copy(obj) {
   if (isAOF(obj)) {
     var nObj = new obj.constructor();
     map(obj, function (v, k) {
-      return nObj[k] = copyObject(v, R);
+      return nObj[k] = _copy(v, R);
     });
     return nObj;
   }
@@ -165,7 +165,7 @@ var _copy = function _copy(obj) {
 
 var copy = exports.copy = function copy(obj) {
   if (isAOF(obj)) {
-    return copyObject(obj);
+    return _copy(obj);
   }
   return Object.assign(obj);
 };
