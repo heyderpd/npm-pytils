@@ -5,29 +5,7 @@
  * ISC Licensed
 */
 
-const compose = (...args) => {
-  return input => args
-    .reduce(
-      (obj, func) => func(obj), input)
-}
-
-const curry = func => {
-  return (...args) => {
-    if (args.length >= func.length) {
-      return func(...args)
-    }
-    const store = args
-    return (...args) => curry(func)(...[...store, ...args])
-  }
-}
-
-const pureProp = (props, obj) => keys(props)
-  .reduce((obj, prop) => hasProp(obj, prop)
-    ? obj[prop]
-    : undefined)
-
-const prop = curry(pureProp)
-
+/* TYPE */
 const type = obj => {
   if (obj === null) {
     return 'null'
@@ -54,10 +32,6 @@ const type = obj => {
   return _typeOf
 }
 
-const hasProp = (obj, item) => isAOF(obj)
-  ? keys(obj).indexOf(item) >= 0
-  : false
-
 const isType = (obj, _type) => type(obj) === _type
 
 const isString = obj => isType(obj, 'string')
@@ -75,6 +49,36 @@ const isAOF = obj => ['array', 'object', 'function'].indexOf(type(obj)) >= 0
 const isNull = obj => isType(obj, 'null')
 
 const isUndefined = obj => isType(obj, 'undefined')
+/* TYPE */
+
+const compose = (...args) => {
+  return input => args
+    .reduce(
+      (obj, func) => func(obj), input)
+}
+
+const curry = func => {
+  return (...args) => {
+    if (args.length >= func.length) {
+      return func(...args)
+    }
+    const store = args
+    return (...args) => curry(func)(...[...store, ...args])
+  }
+}
+
+const pureProp = (props, obj) => keys(props)
+  .reduce((obj, prop) => hasProp(obj, prop)
+    ? obj[prop]
+    : undefined)
+
+const prop = curry(pureProp)
+
+
+
+const hasProp = (obj, item) => isAOF(obj)
+  ? keys(obj).indexOf(item) >= 0
+  : false
 
 const copy = obj => {
   if(isAOF(obj)) {
