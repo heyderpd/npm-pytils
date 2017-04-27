@@ -6,8 +6,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 /*!
  * pytils
  * Copyright (c) 2016 heyderpd <heyderpd@gmail.com>
@@ -99,16 +97,9 @@ var curry = exports.curry = function curry(func) {
       args[_key2] = arguments[_key2];
     }
 
-    if (args.length >= func.length) {
-      return func.apply(undefined, args);
-    }
-    return function () {
-      for (var _len3 = arguments.length, nextArgs = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-        nextArgs[_key3] = arguments[_key3];
-      }
-
-      return curry(func).apply(undefined, _toConsumableArray(args.concat(nextArgs)));
-    };
+    return args.reduce(function (fx, arg) {
+      return fx(arg);
+    }, func);
   };
 };
 
@@ -218,10 +209,7 @@ var uniqObject = exports.uniqObject = function uniqObject(A, B) {
 /* OBJECT */
 
 var _keys = function () {
-  var has = path(['prototype', 'hasOwnProperty'], Object);
-  if (!isFunction(has)) {
-    throw "Cant't get Object.prototype.hasOwnProperty";
-  }
+  var ObjectHas = path(['prototype', 'hasOwnProperty'], Object);
 
   return function (obj) {
     if (isAOF(obj)) {
@@ -229,9 +217,10 @@ var _keys = function () {
       for (var p in obj) {
         props.push(p);
       }
-      return props.filter(function (p) {
+      var has = ObjectHas ? ObjectHas : path(['hasOwnProperty'], obj);
+      return isFunction(has) ? props.filter(function (p) {
         return has.call(obj, p);
-      });
+      }) : props;
     }
     return [];
   };
@@ -269,9 +258,9 @@ var values = exports.values = function values(obj) {
 
     case 'object':
     case 'function':
-      return map(obj, function (key) {
-        return obj[key];
-      });
+      return map(function (val) {
+        return val;
+      }, obj);
 
     case 'array':
     case 'null':

@@ -61,14 +61,10 @@ export const compose = (...funcs) => input => {
       (obj, fx) => fx(obj), input)
 }
 
-export const curry = func => {
-  return (...args) => {
-    if (args.length >= func.length) {
-      return func(...args)
-    }
-    return (...nextArgs) => curry(func)(...args.concat(nextArgs))
-  }
-}
+export const curry = func => (...args) =>
+  args.reduce(
+    (fx, arg) => fx(arg),
+    func)
 
 export const path = curry(
   path => obj => {
@@ -187,10 +183,7 @@ export const uniqObject = (A, B) => compose(
 /* OBJECT */
 
 const _keys = (() => {
-  const has = path(['prototype', 'hasOwnProperty'], Object)
-  if (!isFunction(has)){
-    throw "Cant't get Object.prototype.hasOwnProperty"
-  }
+  const ObjectHas = path(['prototype', 'hasOwnProperty'], Object)
 
   return obj => {
     if (isAOF(obj)) {
@@ -198,9 +191,12 @@ const _keys = (() => {
       for (let p in obj) {
         props.push(p)
       }
-      return props
-        .filter(
-          p => has.call(obj, p))
+      const has = ObjectHas ? ObjectHas : path(['hasOwnProperty'], obj)
+      return isFunction(has)
+        ? props
+          .filter(
+            p => has.call(obj, p))
+        : props
     }
     return []
   }
@@ -238,7 +234,9 @@ export const values = obj => {
 
     case 'object':
     case 'function':
-      return map(obj, key => obj[key])
+      return map(
+        val => val,
+        obj)
 
     case 'array':
     case 'null':
