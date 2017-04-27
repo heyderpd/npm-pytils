@@ -79,120 +79,6 @@ var isUndefined = exports.isUndefined = function isUndefined(obj) {
 };
 
 /* TYPE */
-/* OBJECT */
-
-var _keys = function () {
-  var has = path(['prototype', 'hasOwnProperty'], Object);
-  if (!isFunction(has)) {
-    throw "Cant't get Object.prototype.hasOwnProperty";
-  }
-
-  return function (obj) {
-    if (isAOF(obj)) {
-      var props = [];
-      for (var p in obj) {
-        props.push(p);
-      }
-      return props.filter(function (p) {
-        return has.call(obj, p);
-      });
-    }
-    return [];
-  };
-}();
-
-var keys = exports.keys = function keys(obj) {
-  switch (type(obj)) {
-    case 'number':
-      obj = String(obj);
-
-    case 'string':
-      obj = obj.split('');
-
-    case 'array':
-    case 'object':
-    case 'function':
-      return _keys(obj);
-
-    case 'null':
-    case 'undefined':
-    default:
-      return [];
-  }
-};
-
-var values = exports.values = function values(obj) {
-  switch (type(obj)) {
-    case 'number':
-      return String(obj).split('').map(function (n) {
-        return parseInt(n);
-      });
-
-    case 'string':
-      return obj.split('');
-
-    case 'object':
-    case 'function':
-      return map(obj, function (key) {
-        return obj[key];
-      });
-
-    case 'array':
-    case 'null':
-    case 'undefined':
-    default:
-      return [];
-  }
-};
-
-var _copy = function _copy(obj) {
-  var R = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-
-  if (R++ > 42) {
-    throw "Limit recursive exceeded in pytils.copyObject";
-  }
-
-  if (isAOF(obj)) {
-    var nObj = new obj.constructor();
-    map(obj, function (v, k) {
-      return nObj[k] = _copy(v, R);
-    });
-    return nObj;
-  }
-
-  return obj;
-};
-
-var copy = exports.copy = function copy(obj) {
-  if (isAOF(obj)) {
-    return _copy(obj);
-  }
-  return Object.assign(obj);
-};
-
-var hasProp = exports.hasProp = function hasProp(obj, item) {
-  return isAOF(obj) ? keys(obj).indexOf(item) >= 0 : false;
-};
-
-var length = exports.length = function length(obj) {
-  switch (type(obj)) {
-    case 'number':
-    case 'object':
-      return keys(obj).length;
-
-    case 'string':
-    case 'array':
-    case 'function':
-      return obj.length;
-
-    case 'null':
-    case 'undefined':
-    default:
-      return -1;
-  }
-};
-
-/* OBJECT */
 /* RAMDA LIKE */
 
 var compose = exports.compose = function compose() {
@@ -329,3 +215,117 @@ var uniqObject = exports.uniqObject = function uniqObject(A, B) {
 };
 
 /* PYTILS */
+/* OBJECT */
+
+var _keys = function () {
+  var has = path(['prototype', 'hasOwnProperty'], Object);
+  if (!isFunction(has)) {
+    throw "Cant't get Object.prototype.hasOwnProperty";
+  }
+
+  return function (obj) {
+    if (isAOF(obj)) {
+      var props = [];
+      for (var p in obj) {
+        props.push(p);
+      }
+      return props.filter(function (p) {
+        return has.call(obj, p);
+      });
+    }
+    return [];
+  };
+}();
+
+var keys = exports.keys = function keys(obj) {
+  switch (type(obj)) {
+    case 'number':
+      obj = String(obj);
+
+    case 'string':
+      obj = obj.split('');
+
+    case 'array':
+    case 'object':
+    case 'function':
+      return _keys(obj);
+
+    case 'null':
+    case 'undefined':
+    default:
+      return [];
+  }
+};
+
+var values = exports.values = function values(obj) {
+  switch (type(obj)) {
+    case 'number':
+      return String(obj).split('').map(function (n) {
+        return parseInt(n);
+      });
+
+    case 'string':
+      return obj.split('');
+
+    case 'object':
+    case 'function':
+      return map(obj, function (key) {
+        return obj[key];
+      });
+
+    case 'array':
+    case 'null':
+    case 'undefined':
+    default:
+      return [];
+  }
+};
+
+var _copy = function _copy(obj) {
+  var R = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
+  if (R++ > 42) {
+    throw "Limit recursive exceeded in pytils.copyObject";
+  }
+
+  if (isAOF(obj)) {
+    var nObj = new obj.constructor();
+    map(obj, function (v, k) {
+      return nObj[k] = _copy(v, R);
+    });
+    return nObj;
+  }
+
+  return obj;
+};
+
+var copy = exports.copy = function copy(obj) {
+  if (isAOF(obj)) {
+    return _copy(obj);
+  }
+  return Object.assign(obj);
+};
+
+var hasProp = exports.hasProp = function hasProp(obj, item) {
+  return isAOF(obj) ? keys(obj).indexOf(item) >= 0 : false;
+};
+
+var length = exports.length = function length(obj) {
+  switch (type(obj)) {
+    case 'number':
+    case 'object':
+      return keys(obj).length;
+
+    case 'string':
+    case 'array':
+    case 'function':
+      return obj.length;
+
+    case 'null':
+    case 'undefined':
+    default:
+      return -1;
+  }
+};
+
+/* OBJECT */

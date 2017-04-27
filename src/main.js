@@ -52,116 +52,6 @@ export const isNull = obj => isType(obj, 'null')
 export const isUndefined = obj => isType(obj, 'undefined')
 
 /* TYPE */
-/* OBJECT */
-
-const _keys = (() => {
-  const has = path(['prototype', 'hasOwnProperty'], Object)
-  if (!isFunction(has)){
-    throw "Cant't get Object.prototype.hasOwnProperty"
-  }
-
-  return obj => {
-    if (isAOF(obj)) {
-      const props = []
-      for (let p in obj) {
-        props.push(p)
-      }
-      return props
-        .filter(
-          p => has.call(obj, p))
-    }
-    return []
-  }
-})()
-
-export const keys = obj => {
-  switch(type(obj)) {
-    case 'number':
-      obj = String(obj)
-
-    case 'string':
-      obj = obj.split('')
-
-    case 'array':
-    case 'object':
-    case 'function':
-      return _keys(obj)
-
-    case 'null':
-    case 'undefined':
-    default:
-      return []
-  }
-}
-
-export const values = obj => {
-  switch(type(obj)) {
-    case 'number':
-      return String(obj)
-        .split('')
-        .map(n => parseInt(n))
-
-    case 'string':
-      return obj.split('')
-
-    case 'object':
-    case 'function':
-      return map(obj, key => obj[key])
-
-    case 'array':
-    case 'null':
-    case 'undefined':
-    default:
-      return []
-  }
-}
-
-const _copy = (obj, R = 0) => {
-  if (R++ > 42) {
-    throw "Limit recursive exceeded in pytils.copyObject"
-  }
-
-  if(isAOF(obj)) {
-    const nObj = new obj.constructor()
-    map(
-      obj,
-      (v, k) => nObj[k] = _copy(v, R))
-    return nObj
-  }
-
-  return obj
-}
-
-export const copy = obj => {
-  if(isAOF(obj)) {
-    return _copy(obj)
-  }
-  return Object.assign(obj)
-}
-
-export const hasProp = (obj, item) => isAOF(obj)
-  ? keys(obj).indexOf(item) >= 0
-  : false
-
-export const length = obj => {
-  switch(type(obj)) {
-    case 'number':
-    case 'object':
-      return keys(obj).length
-
-    case 'string':
-    case 'array':
-    case 'function':
-      return obj.length
-
-    case 'null':
-    case 'undefined':
-    default:
-      return -1
-  }
-}
-
-/* OBJECT */
 /* RAMDA LIKE */
 
 export const compose = (...funcs) => input => {
@@ -294,3 +184,113 @@ export const uniqObject = (A, B) => compose(
   )(A)
 
 /* PYTILS */
+/* OBJECT */
+
+const _keys = (() => {
+  const has = path(['prototype', 'hasOwnProperty'], Object)
+  if (!isFunction(has)){
+    throw "Cant't get Object.prototype.hasOwnProperty"
+  }
+
+  return obj => {
+    if (isAOF(obj)) {
+      const props = []
+      for (let p in obj) {
+        props.push(p)
+      }
+      return props
+        .filter(
+          p => has.call(obj, p))
+    }
+    return []
+  }
+})()
+
+export const keys = obj => {
+  switch(type(obj)) {
+    case 'number':
+      obj = String(obj)
+
+    case 'string':
+      obj = obj.split('')
+
+    case 'array':
+    case 'object':
+    case 'function':
+      return _keys(obj)
+
+    case 'null':
+    case 'undefined':
+    default:
+      return []
+  }
+}
+
+export const values = obj => {
+  switch(type(obj)) {
+    case 'number':
+      return String(obj)
+        .split('')
+        .map(n => parseInt(n))
+
+    case 'string':
+      return obj.split('')
+
+    case 'object':
+    case 'function':
+      return map(obj, key => obj[key])
+
+    case 'array':
+    case 'null':
+    case 'undefined':
+    default:
+      return []
+  }
+}
+
+const _copy = (obj, R = 0) => {
+  if (R++ > 42) {
+    throw "Limit recursive exceeded in pytils.copyObject"
+  }
+
+  if(isAOF(obj)) {
+    const nObj = new obj.constructor()
+    map(
+      obj,
+      (v, k) => nObj[k] = _copy(v, R))
+    return nObj
+  }
+
+  return obj
+}
+
+export const copy = obj => {
+  if(isAOF(obj)) {
+    return _copy(obj)
+  }
+  return Object.assign(obj)
+}
+
+export const hasProp = (obj, item) => isAOF(obj)
+  ? keys(obj).indexOf(item) >= 0
+  : false
+
+export const length = obj => {
+  switch(type(obj)) {
+    case 'number':
+    case 'object':
+      return keys(obj).length
+
+    case 'string':
+    case 'array':
+    case 'function':
+      return obj.length
+
+    case 'null':
+    case 'undefined':
+    default:
+      return -1
+  }
+}
+
+/* OBJECT */
