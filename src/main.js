@@ -61,6 +61,12 @@ export const isUndefined = obj => isType(obj, 'undefined')
 /* TYPE */
 /* RAMDA LIKE */
 
+export const composeInv = (...funcs) => input => {
+  return funcs
+    .reduce(
+      (obj, fx) => fx(obj), input)
+}
+
 export const compose = (...funcs) => input => {
   return funcs
     .reduceRight(
