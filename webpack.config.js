@@ -1,9 +1,8 @@
 var webpack = require('webpack');
 
 module.exports = {
-  entry: './npm/index.js',
+  entry: './dist/index.js',
   output: {
-    path: './npm',
     filename: 'pytils.bundle.js'
   },
   plugins: [
