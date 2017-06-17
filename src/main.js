@@ -14,23 +14,28 @@ export const type = obj => {
   if (obj === undefined) {
     return 'undefined'
   }
-
   const _typeOf = typeof(obj)
-  if (_typeOf === 'function') {
-    return 'function'
-  }
+  switch (_typeOf) {
+    case 'function':
+      return 'function'
 
-  if (_typeOf === 'object') {
-    const _type = path(['obj', 'constructor'], obj)
-    if (_type === Object) {
-      return 'object'
-    }
-    if (_type === Array) {
-      return 'array'
-    }
+    case 'number':
+      return isNaN(obj)
+        ? 'NaN'
+        : 'number'
+    
+    case 'object':
+      const _type = path(['constructor'], obj)
+      if (_type === Object) {
+        return 'object'
+      }
+      if (_type === Array) {
+        return 'array'
+      }
+    
+    default:
+      return _typeOf
   }
-
-  return _typeOf
 }
 
 export const isType = (obj, _type) => type(obj) === _type
@@ -46,6 +51,8 @@ export const isObject = obj => isType(obj, 'object')
 export const isFunction = obj => isType(obj, 'function')
 
 export const isAOF = obj => ['array', 'object', 'function'].indexOf(type(obj)) >= 0
+
+export const isUN = obj => ['undefined', 'null'].indexOf(type(obj)) >= 0
 
 export const isNull = obj => isType(obj, 'null')
 
@@ -77,16 +84,14 @@ export const path = curry(
         }, obj)
   })
 
-export const map = curry(
-  func => list => {
-    return isArray(list)
-      ? list.map(func)
-      : (isObject(list)
-        ? keys(list).map(
-            key => func(list[key], key))
-        : undefined
-      )
-  })
+export const mapx = (list, func) => isArray(list)
+  ? list.map(func)
+  : (isObject(list)
+    ? keys(list).map(
+        key => func(list[key], key))
+    : undefined)
+
+export const map = curry(func => list => mapx(list, func))
 
 export const reduce = (func, obj) => list => {
     return isArray(list)
@@ -179,6 +184,12 @@ export const uniqObject = (A, B) => compose(
     keys
   )(A)
 
+export const ifThrow = (Throw, text) => {
+  if (Throw) {
+    throw text
+  }
+}
+
 /* PYTILS */
 /* OBJECT */
 
@@ -246,28 +257,23 @@ export const values = obj => {
   }
 }
 
-const _copy = (obj, R = 0) => {
-  if (R++ > 42) {
-    throw "Limit recursive exceeded in pytils.copyObject"
-  }
+export const _copy = (obj, R = 0) => {
+  ifThrow(
+    R++ > 42,
+    'Limit recursive exceeded in pytils.copyObject')
 
-  if(isAOF(obj)) {
+  if (isAOF(obj)) {
     const nObj = new obj.constructor()
     map(
-      obj,
-      (v, k) => nObj[k] = _copy(v, R))
+      (v, k) => nObj[k] = _copy(v, R),
+      obj)
     return nObj
   }
-
+  
   return obj
 }
 
-export const copy = obj => {
-  if(isAOF(obj)) {
-    return _copy(obj)
-  }
-  return Object.assign(obj)
-}
+export const copy = obj => _copy(obj)
 
 export const hasProp = (obj, item) => isAOF(obj)
   ? keys(obj).indexOf(item) >= 0
