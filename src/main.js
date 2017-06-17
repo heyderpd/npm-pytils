@@ -63,8 +63,7 @@ export const isUndefined = obj => isType(obj, 'undefined')
 
 export const compose = (...funcs) => input => {
   return funcs
-    .reverse()
-    .reduce(
+    .reduceRight(
       (obj, fx) => fx(obj), input)
 }
 
