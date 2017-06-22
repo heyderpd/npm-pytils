@@ -207,23 +207,26 @@ const essentialDict = {
   'function':  isFunction
 }
 
-const essentialErro = (key, type) => `pytils: Params[x][${key}] is a essential! and need to be a valid '${type}'.`
+const essentialErro = (name, type) => `pytils: Params[x].${name} is a essential! and need to be a valid '${type}'.`
 
 export const isEssential = moduleName => Params => {
   const getErro = (name, type) => `${moduleName}: ${name} is a essential! and need to be a valid '${type}'.`
   mapx(Params,
-    (data, name) => {
-      const param = path([0], data)
-      const Type = path([1], data)
-      const _func = essentialDict[Type]
-      const func = _func ? _func : path([2], data)
+    data => {
+      const _keys = keys(data)
+      const name = path([0], keys)
+      const type = path([1], keys)
+
+      const param = path([name], data)
+      const _func = essentialDict[type]
+      const func = _func ? _func : path([ path([2], keys) ], data)
 
       ifThrow(
         isString(Type),
-        essentialErro(1, 'string'))
+        essentialErro('second', 'string'))
       ifThrow(
         isFunction(func),
-        essentialErro(2, 'string'))
+        essentialErro('third', 'type function'))
       ifThrow(
         func(param),
         getErro(name, Type))
