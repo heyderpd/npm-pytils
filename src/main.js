@@ -23,7 +23,7 @@ export const type = obj => {
       return isNaN(obj)
         ? 'NaN'
         : 'number'
-    
+
     case 'object':
       const _type = path(['constructor'], obj)
       if (_type === Object) {
@@ -32,7 +32,7 @@ export const type = obj => {
       if (_type === Array) {
         return 'array'
       }
-    
+
     default:
       return _typeOf
   }
@@ -195,6 +195,41 @@ export const ifThrow = (Throw, text) => {
   }
 }
 
+const essentialDict = {
+  'UN':  isUN,
+  'AOF': isAOF,
+  'string': isString,
+  'number': isNumber,
+  'array':  isArray,
+  'object': isObject,
+  'null':   isNull,
+  'undefined': isUndefined,
+  'function':  isFunction
+}
+
+const essentialErro = (key, type) => `pytils: Params[x][${key}] is a essential! and need to be a valid '${type}'.`
+
+export const isEssential = moduleName => Params => {
+  const getErro = (name, type) => `${moduleName}: ${name} is a essential! and need to be a valid '${type}'.`
+  mapx(Params,
+    (data, name) => {
+      const param = path([0], data)
+      const Type = path([1], data)
+      const _func = essentialDict[Type]
+      const func = _func ? _func : path([2], data)
+
+      ifThrow(
+        isString(Type),
+        essentialErro(1, 'string'))
+      ifThrow(
+        isFunction(func),
+        essentialErro(2, 'string'))
+      ifThrow(
+        func(param),
+        getErro(name, Type))
+    })
+}
+
 /* PYTILS */
 /* OBJECT */
 
@@ -274,7 +309,7 @@ export const _copy = (obj, R = 0) => {
       obj)
     return nObj
   }
-  
+
   return obj
 }
 
