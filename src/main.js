@@ -213,20 +213,18 @@ export const isEssential = moduleName => Params => {
   const getErro = (name, type) => `${moduleName}: ${name} is a essential! and need to be a valid '${type}'.`
   mapx(Params,
     data => {
-      const _keys = keys(data)
-      const name = path([0], keys)
-      const type = path([1], keys)
-
+      const name  = path([0], keys(data))
       const param = path([name], data)
+      const type  = path(['t'], data) || path(['type'], data)
       const _func = essentialDict[type]
-      const func = _func ? _func : path([ path([2], keys) ], data)
+      const func  = _func ? _func : path(['f'], data) || path(['func'], data)
 
       ifThrow(
         isString(Type),
-        essentialErro('second', 'string'))
+        essentialErro('type', 'string'))
       ifThrow(
         isFunction(func),
-        essentialErro('third', 'type function'))
+        essentialErro('func', 'type function'))
       ifThrow(
         func(param),
         getErro(name, Type))
