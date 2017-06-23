@@ -61,22 +61,31 @@ export const isUndefined = obj => isType(obj, 'undefined')
 /* TYPE */
 /* RAMDA LIKE */
 
-export const composeInv = (...funcs) => input => {
+const getArgument = process => function() {
+  for (var len = arguments.length, args = Array(len), key = 0;
+    key < len;
+    key++) {
+    args[key] = arguments[key];
+  }
+  return process(args)
+}
+
+export const composeDown = getArgument(funcs => input => {
   return funcs
     .reduce(
       (obj, fx) => fx(obj), input)
-}
+})
 
-export const compose = (...funcs) => input => {
+export const compose = getArgument(funcs => input => {
   return funcs
     .reduceRight(
       (obj, fx) => fx(obj), input)
-}
+})
 
-export const curry = func => (...args) =>
+export const curry = func => getArgument(args =>
   args.reduce(
     (fx, arg) => fx(arg),
-    func)
+    func))
 
 export const path = curry(
   path => obj => {
@@ -89,12 +98,20 @@ export const path = curry(
         }, obj)
   })
 
-export const mapx = (list, func) => isArray(list)
-  ? list.map(func)
-  : (isObject(list)
-    ? keys(list).map(
-        key => func(list[key], key))
-    : undefined)
+export const mapx = (list, func) => {
+  switch (type(list)) {
+    case 'array':
+      return list.map(func)
+
+    case 'object':
+    case 'function':
+      return keys(list)
+        .map(key => func(list[key], key))
+
+    default:
+      return undefined
+  }
+}
 
 export const map = curry(func => list => mapx(list, func))
 
@@ -291,6 +308,8 @@ export const values = obj => {
         obj)
 
     case 'array':
+      return obj
+
     case 'null':
     case 'undefined':
     default:

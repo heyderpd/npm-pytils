@@ -1,11 +1,11 @@
 {
   "license": "MIT",
   "name": "pytils",
-  "version": "1.33.0",
+  "version": "1.35.1",
   "description": "pytils",
-  "main": "dist/index.js",
+  "main": "dist/main.js",
   "scripts": {
-    "transpile": "babel src/ --out-file dist/index.js",
+    "transpile": "babel src --out-dir dist",
     "test": "mocha --compilers js:babel-register --reporter spec 'test/*.spec.js'",
     "build": "npm run transpile | npm run test",
     "web": "webpack --config \"webpack.config.js\" && mv pytils.bundle.js ./dist/pytils.bundle.js"

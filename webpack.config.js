@@ -1,7 +1,7 @@
 var webpack = require('webpack');
 
 module.exports = {
-  entry: './dist/index.js',
+  entry: './dist/main.js',
   output: {
     filename: 'pytils.bundle.js'
   },

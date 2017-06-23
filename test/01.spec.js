@@ -1,9 +1,11 @@
 const assert = require('assert')
 
-import { type, isString, isNumber, isArray, isObject, isAOF, isNull, isUndefined, mapx, map, copy, hasProp, length } from '../src/main'
+import { type, mapx, map, copy, hasProp, length, keys, values } from '../src/main'
+import { isString, isNumber, isArray, isObject, isAOF, isUN, isNull, isUndefined, isFunction } from '../src/main'
+import { compose, composeDown, curry } from '../src/main'
 
 let test
-const o = {a:3, b:2, c:1}
+const o = { a:3, b:2, c:1 }
 const list = {
   u:  undefined,
   n:  null,
@@ -27,6 +29,30 @@ const expect = {
   f:  { type: 'function' , copy: false, has: { a: true,  o: false }, len:  1 }
 }
 
+
+const expect2 = {
+  u:  { keys: [],                   values: [] },
+  n:  { keys: [],                   values: [] },
+  p:  { keys: ['0', '1', '2'],      values: ['s', 'd', 'f'] },
+  d:  { keys: ['0', '1', '2', '3'], values: [1, 2, 6, 6] },
+  a:  { keys: ['0', '1', '2'],      values: [0, 1, 2] },
+  o:  { keys: ['a', 'b', 'c'],      values: [3, 2, 1] },
+  do: { keys: ['o', 'z'],           values: [ { a: 3, b: 2, c: 1 }, 123 ] },
+  f:  { keys: ['a'],                values: [ 13 ] }
+}
+
+const expect3 = [
+  { isUndefined, t: 'undefined' },
+  { isNull,      t: 'null'      },
+  { isString,    t: 'string'    },
+  { isNumber,    t: 'number'    },
+  { isArray,     t: 'array'     },
+  { isObject,    t: 'object'    },
+  { isFunction,  t: 'function'  },
+  { isAOF,       t: ['array', 'object', 'function'] },
+  { isUN,        t: ['undefined', 'null'] }
+]
+
 const rollTest = (fx, test, param, comp) => (val, key) => {
   const x = fx(val, param)
   const res = comp
@@ -40,6 +66,38 @@ const rollTest = (fx, test, param, comp) => (val, key) => {
 
 describe('type', () => {
   mapx(list, rollTest(type, 'type'))
+})
+
+describe('keys', () => {
+  mapx(list,
+    (val, key) => {
+      const res = keys(val)
+      const exp = expect2[key]['keys']
+      it(key, () => assert.deepEqual(res, exp))
+  })
+})
+
+describe('values', () => {
+  mapx(list,
+    (val, key) => {
+      const res = values(val)
+      const exp = expect2[key]['values']
+      it(key, () => assert.deepEqual(res, exp))
+  })
+})
+
+mapx(expect3, item => {
+  const fName = keys(item)[0]
+  const [ fun, test ] = values(item)
+  describe(fName, () => {
+    mapx(list,
+      (val, key) => {
+        const res = fun(val)
+        const _type = expect[key]['type']
+        const exp = type(test) === 'array' ? test.indexOf(_type) >= 0: _type === test
+        it(key, () => assert.equal(res, exp))
+    })
+  })
 })
 
 describe('copy', () => {
@@ -56,4 +114,29 @@ describe('hasProp o', function() {
 
 describe('length', function() {
   mapx(list, rollTest(length, 'len'))
+})
+
+describe('compose', function() {
+  const res = compose(
+    x => x *3,
+    x => x +50
+  )(123)
+  it('normal', () => assert.equal(res, 519))
+
+  const res2 = composeDown(
+    x => x *3,
+    x => x +50
+  )(123)
+  it('inverse', () => assert.equal(res2, 419))
+})
+
+describe('curry', function() {
+  const list = [1, 2, 3]
+  const fun = (v, k) => v +v +k
+  const _map = curry(func => list => mapx(list, func))
+
+  const exp = map(fun)(list)
+  const res = _map(fun)(list)
+
+  it('test', () => assert.deepEqual(res, exp))
 })
