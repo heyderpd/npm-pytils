@@ -322,13 +322,17 @@ export const hasProp = (obj, item) => isAOF(obj)
 
 export const length = obj => {
   switch(type(obj)) {
+    case 'function':
+      if (hasProp(obj, 'length')) {
+        return obj.length
+      }
+
     case 'number':
     case 'object':
       return keys(obj).length
 
     case 'string':
     case 'array':
-    case 'function':
       return obj.length
 
     case 'null':

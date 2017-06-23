@@ -1,56 +1,59 @@
 const assert = require('assert')
 
-import { type, isString, isNumber, isArray, isObject, isAOF, isNull, isUndefined, mapx, map, copy, hasProp } from '../src/main'
+import { type, isString, isNumber, isArray, isObject, isAOF, isNull, isUndefined, mapx, map, copy, hasProp, length } from '../src/main'
 
 let test
 const o = {a:3, b:2, c:1}
 const list = {
-  u:  { v: undefined,        t: 'undefined' },
-  n:  { v: null,             t: 'null'      },
-  p:  { v: 'sdf',            t: 'string'    },
-  d:  { v: 1266,             t: 'number'    },
-  a:  { v: [0, 1, 2],        t: 'array'     },
-  o:  { v: o,                t: 'object'    },
-  do: { v: {o: o, z: 123},   t: 'object'    },
-  f:  { v: () => { oi = 1 }, t: 'function'  }
+  u:  undefined,
+  n:  null,
+  p:  'sdf',
+  d:  1266,
+  a:  [0, 1, 2],
+  o:  o,
+  do: {o: o, z: 123},
+  f:  () => { oi = 1 }
 }
-list.f.v.a = 13
+list.f.a = 13
 
-const rollTest = (fx, param) => (val, key) => {
-  const { v, t } = val
-  const exp = test[key]
-  const res = fx(v, param)
-  it(String(key), () => assert.deepEqual(res, exp))
+const expect = {
+  u:  { type: 'undefined', copy: true,  has: { a: false, o: false }, len: -1 },
+  n:  { type: 'null'     , copy: true,  has: { a: false, o: false }, len: -1 },
+  p:  { type: 'string'   , copy: true,  has: { a: false, o: false }, len:  3 },
+  d:  { type: 'number'   , copy: true,  has: { a: false, o: false }, len:  4 },
+  a:  { type: 'array'    , copy: false, has: { a: false, o: false }, len:  3 },
+  o:  { type: 'object'   , copy: false, has: { a: true,  o: false }, len:  3 },
+  do: { type: 'object'   , copy: false, has: { a: false, o: true  }, len:  2 },
+  f:  { type: 'function' , copy: false, has: { a: true,  o: false }, len:  1 }
 }
 
-describe('type\'s', () => {
-  mapx(
-    list, (val, key) => {
-      const { v, t } = val
-      it(String(key), () => assert.deepEqual(t, type(v)))
-    })
+const rollTest = (fx, test, param, comp) => (val, key) => {
+  const x = fx(val, param)
+  const res = comp
+    ? comp(val, x)
+    : x
+  const exp = param
+    ? expect[key][test][param]
+    : expect[key][test]
+  it(key, () => assert.equal(res, exp))
+}
+
+describe('type', () => {
+  mapx(list, rollTest(type, 'type'))
 })
 
 describe('copy', () => {
-  map(
-    (val, key) => {
-      const { v, t } = val
-      const _v = v
-      const clone = copy(v)
-      if (isAOF(v)) {
-        it(String(key), () => assert.equal(true, clone !== v && _v === v ))
-      } else {
-        it(String(key), () => assert.equal(true, clone === v ))
-      }
-    }, list)
+  mapx(list, rollTest(copy, 'copy', false, (a,b)=>a===b))
 })
 
 describe('hasProp a', function() {
-  test = { u: false, n: false, p: false, d: false, a: false, o: true, do: false, f:  true }
-  mapx(list, rollTest(hasProp, 'a'))
+  mapx(list, rollTest(hasProp, 'has', 'a'))
 })
 
 describe('hasProp o', function() {
-  test = { u: false, n: false, p: false, d: false, a: false, o: false, do: true, f:  false }
-  mapx(list, rollTest(hasProp, 'o'))
+  mapx(list, rollTest(hasProp, 'has', 'o'))
+})
+
+describe('length', function() {
+  mapx(list, rollTest(length, 'len'))
 })
