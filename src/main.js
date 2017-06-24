@@ -142,10 +142,13 @@ export const uniqWith = (comparator, list) => {
 }
 
 export const uniq = list => {
-  return values(createObj(list))
+  const New = []
+  list.map(
+    item => New.indexOf(item) < 0
+      ? new.push(item)
+      : null)
+  return New
 }
-
-export const eq1True = list => isArray(list) && list.length === 1 && list[0] === true
 
 /* RAMDA LIKE */
 /* PYTILS */
@@ -199,10 +202,9 @@ export const translate = curry(
   })
 
 export const uniqObject = (A, B) => compose(
-    eq1True,
+    arr => arr && arr.length === 1 && arr[0] === true,
     uniq,
-    map(
-      key => path([key], A) === path([key], B)),
+    map(key => path([key], A) === path([key], B)),
     keys
   )(A)
 
