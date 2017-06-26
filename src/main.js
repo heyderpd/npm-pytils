@@ -61,43 +61,35 @@ export const isUndefined = obj => isType(obj, 'undefined')
 /* TYPE */
 /* RAMDA LIKE */
 
-const getArgument = process => function() {
-  const len = arguments.length
-  const args = Array(len)
-  let key
-  for (key = 0; key < len; key++) {
-    args[key] = arguments[key];
+const getArgs = fx => function() {
+  const Args = []
+  for (let key in arguments) {
+    Args.push(arguments[key])
   }
-  return process(args)
+  return fx(Args)
 }
 
-export const composeDown = getArgument(funcs => input => {
-  return funcs
-    .reduce(
-      (obj, fx) => fx(obj), input)
-})
+export const composeDown = getArgs(funcs => input =>
+  funcs.reduce(
+      (obj, fx) => fx(obj), input))
 
-export const compose = getArgument(funcs => input => {
-  return funcs
-    .reduceRight(
-      (obj, fx) => fx(obj), input)
-})
+export const compose = getArgs(funcs => input =>
+  funcs.reduceRight(
+      (obj, fx) => fx(obj), input))
 
-export const curry = func => getArgument(args =>
+export const curry = func => getArgs(args =>
   args.reduce(
     (fx, arg) => fx(arg),
     func))
 
 export const path = curry(
-  path => obj => {
-    return path
-      .reduce(
-        (acc, item) => {
-          return acc !== null && acc !== undefined && typeof(acc) === 'object'
-            ? acc[item]
-            : undefined
-        }, obj)
-  })
+  path => obj => 
+    path.reduce(
+      (acc, item) => {
+        return acc !== null && typeof(acc) === 'object'
+          ? acc[item]
+          : undefined
+      }, obj))
 
 export const mapx = (list, func) => {
   switch (type(list)) {
