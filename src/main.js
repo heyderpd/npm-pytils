@@ -62,9 +62,10 @@ export const isUndefined = obj => isType(obj, 'undefined')
 /* RAMDA LIKE */
 
 const getArgument = process => function() {
-  for (var len = arguments.length, args = Array(len), key = 0;
-    key < len;
-    key++) {
+  const len = arguments.length
+  const args = Array(len)
+  let key
+  for (key = 0; key < len; key++) {
     args[key] = arguments[key];
   }
   return process(args)
@@ -145,7 +146,7 @@ export const uniq = list => {
   const New = []
   list.map(
     item => New.indexOf(item) < 0
-      ? new.push(item)
+      ? New.push(item)
       : null)
   return New
 }
