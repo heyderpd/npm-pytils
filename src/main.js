@@ -62,11 +62,11 @@ export const isUndefined = obj => isType(obj, 'undefined')
 /* RAMDA LIKE */
 
 const getArgs = fx => function() {
-  const Args = []
+  const args = []
   for (let key in arguments) {
-    Args.push(arguments[key])
+    args.push(arguments[key])
   }
-  return fx(Args)
+  return fx(args)
 }
 
 export const composeDown = getArgs(funcs => input =>

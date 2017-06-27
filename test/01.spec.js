@@ -1,9 +1,9 @@
 const assert = require('assert')
 
-import { type, mapx, map, copy, hasProp, length, keys, values } from '../src/main'
-import { isString, isNumber, isArray, isObject, isAOF, isUN, isNull, isUndefined, isFunction } from '../src/main'
-import { compose, composeDown, curry } from '../src/main'
-
+import { type, mapx, map, copy, hasProp, length, keys, values } from '../dist/main'
+import { isString, isNumber, isArray, isObject, isAOF, isUN, isNull, isUndefined, isFunction } from '../dist/main'
+import { compose, composeDown, curry } from '../dist/main'
+console.log(mapx)
 let test
 const o = { a:3, b:2, c:1 }
 const list = {
@@ -28,7 +28,6 @@ const expect = {
   do: { type: 'object'   , copy: false, has: { a: false, o: true  }, len:  2 },
   f:  { type: 'function' , copy: false, has: { a: true,  o: false }, len:  1 }
 }
-
 
 const expect2 = {
   u:  { keys: [],                   values: [] },
