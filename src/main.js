@@ -86,7 +86,7 @@ export const path = curry(
   path => obj => 
     path.reduce(
       (acc, item) => {
-        return acc !== null && typeof(acc) === 'object'
+        return acc !== null && ['object', 'function'].indexOf(typeof(acc)) >= 0
           ? acc[item]
           : undefined
       }, obj))
