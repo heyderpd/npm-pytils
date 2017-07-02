@@ -3,7 +3,8 @@ const assert = require('assert')
 import { type, mapx, map, copy, hasProp, length, keys, values } from '../dist/main'
 import { isString, isNumber, isArray, isObject, isAOF, isUN, isNull, isUndefined, isFunction } from '../dist/main'
 import { compose, composeDown, curry } from '../dist/main'
-console.log(mapx)
+import { toArray, ifMatch, whileMatch } from '../dist/main'
+
 let test
 const o = { a:3, b:2, c:1 }
 const list = {
@@ -138,4 +139,41 @@ describe('curry', function() {
   const res = _map(fun)(list)
 
   it('test', () => assert.deepEqual(res, exp))
+})
+
+describe('regex', function() {
+  const rx = /(a)(\d)(c)/gim
+  const data = 'xxxa1cxxxa2cxxx'
+  const data2 = 'xxxa3cxxxa4cxxx'
+  const fX = x => ({r: x})
+  const _if = ifMatch(rx, fX)
+  const _while = whileMatch(rx, fX)
+
+  it('toArray', () => assert.deepEqual(
+    toArray(rx.exec(data)),
+    [ 'a', '1', 'c' ] ))
+
+  it('if data 1', () => assert.deepEqual(
+    _if(data),
+    {r: [ 'a', '1', 'c' ]} ))
+  
+  it('if data 1 again', () => assert.deepEqual(
+    _if(data),
+    {r: [ 'a', '1', 'c' ]} ))
+
+  it('if data 2', () => assert.deepEqual(
+    _if(data2),
+    {r: [ 'a', '3', 'c' ]} ))
+  
+  it('while data 1', () => assert.deepEqual(
+    _while(data),
+    [ { r: [ 'a', '1', 'c' ] }, { r: [ 'a', '2', 'c' ] } ] ))
+  
+  it('while data 2', () => assert.deepEqual(
+    _while(data2),
+    [ { r: [ 'a', '3', 'c' ] }, { r: [ 'a', '4', 'c' ] } ] ))
+
+  it('while data 1 again', () => assert.deepEqual(
+    _while(data),
+    [ { r: [ 'a', '1', 'c' ] }, { r: [ 'a', '2', 'c' ] } ] ))
 })
