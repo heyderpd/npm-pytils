@@ -25,7 +25,7 @@ export const type = obj => {
         : 'number'
 
     case 'object':
-      const _type = path(['constructor'], obj)
+      const _type = obj.constructor
       if (_type === Object) {
         return 'object'
       }
@@ -86,7 +86,7 @@ export const path = curry(
   path => obj => 
     path.reduce(
       (acc, item) => {
-        return acc !== null && ['object', 'function'].indexOf(typeof(acc)) >= 0
+        return !isUN(acc)
           ? acc[item]
           : undefined
       }, obj))
