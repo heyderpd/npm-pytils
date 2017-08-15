@@ -50,13 +50,13 @@ export const isObject = obj => isType(obj, 'object')
 
 export const isFunction = obj => isType(obj, 'function')
 
-export const isAOF = obj => ['array', 'object', 'function'].indexOf(type(obj)) >= 0
+export const isAOF = obj => obj !== null && ['object', 'function'].indexOf(typeof(obj)) >= 0
 
-export const isUN = obj => ['undefined', 'null'].indexOf(type(obj)) >= 0
+export const isUN = obj => obj === undefined || obj === null
 
-export const isNull = obj => isType(obj, 'null')
+export const isNull = obj => obj === null
 
-export const isUndefined = obj => isType(obj, 'undefined')
+export const isUndefined = obj => obj === undefined
 
 /* TYPE */
 /* RAMDA LIKE */
@@ -310,6 +310,22 @@ const _keys = (() => {
     return []
   }
 })()
+
+export const scopedObject = (obj, fx, def = {}) => _keys(obj)
+  .reduce(
+    (acc, key) => {
+      const value = obj[key]
+      acc[key] = value(fx)
+      return acc
+    },
+    def)
+
+export const createObject = (state = {}, fxs = {}) => {
+  return scopedObject(
+    fxs,
+    () => state,
+    state)
+}
 
 export const keys = obj => {
   switch(type(obj)) {
