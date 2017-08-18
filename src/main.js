@@ -83,7 +83,7 @@ export const curry = func => getArgs(args =>
     func))
 
 export const path = curry(
-  path => obj => 
+  path => obj =>
     path.reduce(
       (acc, item) => {
         return !isUN(acc)
@@ -311,21 +311,14 @@ const _keys = (() => {
   }
 })()
 
-export const scopedObject = (obj, fx, def = {}) => _keys(obj)
+export const scopedObject = (obj = {}, fxs) => _keys(fxs)
   .reduce(
     (acc, key) => {
-      const value = obj[key]
-      acc[key] = value(fx)
+      const value = fxs[key]
+      acc[key] = value(obj)
       return acc
     },
-    def)
-
-export const createObject = (state = {}, fxs = {}) => {
-  return scopedObject(
-    fxs,
-    () => state,
-    state)
-}
+    obj)
 
 export const keys = obj => {
   switch(type(obj)) {
