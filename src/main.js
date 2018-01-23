@@ -277,13 +277,13 @@ export const isEssential = moduleName => Params => {
       const func  = _func ? _func : path(['f'], data) || path(['func'], data)
 
       ifThrow(
-        isString(_type),
+        !isString(_type),
         essentialErro('type', 'string'))
       ifThrow(
-        isFunction(func),
+        !isFunction(func),
         essentialErro('func', 'type function'))
       ifThrow(
-        func(param),
+        !func(param),
         getErro(name, _type))
     })
 }

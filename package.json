@@ -1,7 +1,7 @@
 {
   "license": "MIT",
   "name": "pytils",
-  "version": "1.40.2",
+  "version": "1.40.3",
   "description": "pytils",
   "main": "dist/main.js",
   "scripts": {
