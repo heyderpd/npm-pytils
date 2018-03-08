@@ -1,4 +1,5 @@
 import { path } from './path'
+import { isUN, isAOF, isFunction } from './type'
 
 const partialKeys = (() => {
   const ObjectHas = path(['prototype', 'hasOwnProperty'], Object)
@@ -21,21 +22,12 @@ const partialKeys = (() => {
 })()
 
 export const keys = obj => {
-  switch(type(obj)) {
-    case 'number':
-      obj = String(obj)
+  if (isUN(obj)) {
+    return []
 
-    case 'string':
-      obj = obj.split('')
-
-    case 'array':
-    case 'object':
-    case 'function':
-      return partialKeys(obj)
-
-    case 'null':
-    case 'undefined':
-    default:
-      return []
+  } else {
+    return partialKeys(obj)
   }
 }
+
+export const hasProp = (obj, item) => keys(obj).indexOf(item) >= 0

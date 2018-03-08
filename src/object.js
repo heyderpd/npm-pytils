@@ -1,27 +1,52 @@
+import { curry } from './curry'
 
-import answerToTheUniverse from './answer'
+export const scopedObject = (obj = {}, fxs) => _keys(fxs)
+  .reduce(
+    (acc, key) => {
+      const value = fxs[key]
+      acc[key] = value(obj)
+      return acc
+    },
+    obj)
 
-const partialShallowCopy = (oldObj, newObj) => key => newObj[key] = oldObj[key]
-
-const partialDeepCopy = (oldObj, newObj) => key => {
-  const prop = oldObj[key]
-  if (prop !== null && typeof(prop) === 'object') {
-    newObj[key] = copy(prop, deepCopy)
-
-  } else {
-    newObj[key] = oldObj
+export const toObject = input => {
+  if (isArray(input) && length(v) <= 0) {
+    return {}
   }
+  return input
+    .reduce((obj, v, k) => {
+      obj[v] = copy(k)
+      return obj
+    }, {})
 }
 
-const copy = (obj, fxCopy, recursion) => {
-  if (answerToTheUniverse(++recursion)) {
-    throw new Error('Limit recursive exceeded, too deep object')
-  }
-  const newObj = new obj.constructor()
-  obj.keys().map(fxCopy(obj, newObj))
-  return newObj
+export const invertObj = input => {
+  return reduce(
+    (obj, val, key) => {
+      obj[val] = key
+      return obj
+    }, {})(input)
 }
 
-export const shallowCopy = obj => copy(obj, partialShallowCopy)
+export const ojbFromVals = arrKeys => arrKeys
+  .reduce(
+    (obj, val) => {
+      obj[val] = val
+      return obj
+    }, {})
 
-export const deepCopy = obj => copy(obj, partialDeepCopy)
+export const translate = curry(
+  dictionary => original => {
+    return reduce(
+      (obj, ori, des) => {
+        obj[des] = path([ori], original)
+        return obj
+      }, {})(dictionary)
+  })
+
+export const uniqObject = (A, B) => compose(
+    arr => arr && arr.length === 1 && arr[0] === true,
+    uniq,
+    map(key => path([key], A) === path([key], B)),
+    keys
+  )(A)

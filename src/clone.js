@@ -1,4 +1,3 @@
-
 import { answerToTheUniverse } from './answer'
 import { keys } from './keys'
 import { path } from './path'
@@ -18,7 +17,7 @@ const partialDeepCopy = (oldObj, newObj) => key => {
 
 const copy = (obj, fxCopy, recursion) => {
   if (answerToTheUniverse(++recursion)) {
-    throw new Error('Limit recursive exceeded, too deep object')
+    throw new Error('Limit recursive exceeded in function copy, too deep object')
   }
   const constructor = path(['constructor'], obj)
   if (isFunction(constructor)) {
