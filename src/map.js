@@ -1,13 +1,18 @@
-import { isUN } from './type'
+import { type } from './type'
 import { keys } from './keys'
+import { curry } from './curry'
 
 export const mapx = (list, func) => {
-  if (isUN(list)) {
-    return []
+  switch (type(list)) {
+    case 'null':
+    case 'undefined':
+      return []
 
-  } else {
-    return keys(list)
-      .map(key => func(list[key], key))
+    case 'array':
+      return list.map(func)
+
+    default:
+      return keys(list).map(key => func(list[key], key))
   }
 }
 

@@ -1,4 +1,4 @@
-import { isUN, isArray } from './type'
+import { type } from './type'
 import { keys } from './keys'
 
 const getReduce = (obj, fx, initial, reduceToRight) => {
@@ -17,26 +17,26 @@ const getReduce = (obj, fx, initial, reduceToRight) => {
 const objectReduce = (obj, fx) => (acc, key) => fx(acc, obj[key], key)
 
 const partialReduce = function ({ obj, fx, initial = undefined, reduceToRight = false }) {
-  if (isArray(obj)) {
-    return getReduce(
-      obj,
-      fx,
-      initial,
-      reduceToRight
-    )
+  switch(type(obj)) {
+    case 'array':
+      return getReduce(
+        obj,
+        fx,
+        initial,
+        reduceToRight
+      )
 
-  } else {
-    if (isUN(obj)) {
-      return undefined
-
-    } else {
+    case 'object':
+    case 'function':
       return getReduce(
         keys(obj),
         objectReduce(obj, fx),
         initial,
         reduceToRight
       )
-    }
+
+    default:
+      return undefined
   }
 }
 

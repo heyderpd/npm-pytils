@@ -1,17 +1,18 @@
 import { getArgs } from './get-args'
 
-const partialCurry = (fx, fixedsArgs = []) => getArgs(function (inputArgs) {
-  const args = fixedsArgs.concat(inputArgs)
-  if (fx.length >= args) {
-    return fx.apply(this, args)
+const partialCurry = function (fx, fxLength, fixedsArgs = []) {
+  return getArgs(function (inputArgs) {
+    const args = fixedsArgs.concat(inputArgs)
 
-  } else {
-    const bindedCurry = partialCurry.bind(this)
-    return bindedCurry(fx, args)
-  }
-})
+    if (args.length >= fxLength) {
+      return fx.apply(this, args)
+
+    } else {
+      return partialCurry(fx, fxLength, args)
+    }
+  })
+}
 
 export const curry = function (fx) {
-  const bindedCurry = partialCurry.bind(this)
-  return partialCurry(fx)
+  return partialCurry(fx, fx.length, [])
 }

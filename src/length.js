@@ -1,15 +1,17 @@
-import { isUN } from './type'
+import { type } from './type'
 import { keys, hasProp } from './keys'
 
 export const length = obj => {
-  if (isUN(obj)) {
-    return -1
-  }
+  switch (type(obj)) {
+    case 'NaN':
+    case 'null':
+    case 'undefined':
+      return -1
 
-  if (hasProp(obj, 'length')) {
-    return obj.length
+    case 'number':
+      return keys(String(obj)).length
 
-  } else {
-    return keys(obj).length
+    default:
+      return keys(obj).length
   }
 }
